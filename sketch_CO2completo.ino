@@ -64,14 +64,7 @@ void setup() {
           Serial.println("No SD");
           delay(500);//espera antes de volver a intentarlo 
     }
-  Serial.println("SD!");
-  
-  u8g2.firstPage();  
-  do {
-    u8g2.setFont(u8g_font_unifont);
-    u8g2.drawStr( 20, 18, "Inicializando");
-    u8g2.drawStr( 20, 33, "sensores");
-    } while( u8g2.nextPage() );
+  Serial.println("SD INICIADA");
 }
 
 void loop() {
@@ -112,10 +105,11 @@ void loop() {
   if (readyToSave)
   {
     dht22.read(&temperature, &humidity, NULL);
-    file = SD.open("test.txt", FILE_WRITE);
-    if (file){
     DateTime now = rtc.now();
-    sprintf(str, "%i:%i:%i:%i:%i:%i\t", now.year(), now.month(), now.day(), now.hour(),now.minute(), now.second());
+    sprintf(str, "%i_%i_%i.txt", now.day(), now.month(), now.year());
+    file = SD.open(str, FILE_WRITE);
+    if (file){
+    sprintf(str, "%i/%i/%i\t%i:%i:%i\t", now.day(), now.month(), now.year(), now.hour(),now.minute(), now.second());
     Serial.print(str);
     file.print(str);
     sprintf(str, "%i\t", CO2);
@@ -130,7 +124,7 @@ void loop() {
     file.close();
     }
     else {
-      Serial.println("No File");  
+      Serial.println("Error Archivo");  
     }
     readyToSave = false;
   }

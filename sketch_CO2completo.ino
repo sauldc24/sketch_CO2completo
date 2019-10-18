@@ -26,7 +26,7 @@ SimpleDHT22 dht22(9);
 U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0);
 
 //String para el manejo de las escrituras a archivo, pantalla y serial
-char str[20];
+char str[23];
 File file;
 
 byte humidity = 0;
@@ -106,10 +106,10 @@ void loop() {
   {
     dht22.read(&temperature, &humidity, NULL);
     DateTime now = rtc.now();
-    sprintf(str, "%i_%i_%i.txt", now.day(), now.month(), now.year());
+    sprintf(str, "%i_%i.txt", now.day(), now.month());
     file = SD.open(str, FILE_WRITE);
     if (file){
-    sprintf(str, "%i/%i/%i\t%i:%i:%i\t", now.day(), now.month(), now.year(), now.hour(),now.minute(), now.second());
+    sprintf(str, "%02i/%02i/%i\t%02i:%02i:%02i\t", now.day(), now.month(), now.year(), now.hour(),now.minute(), now.second());
     Serial.print(str);
     file.print(str);
     sprintf(str, "%i\t", CO2);

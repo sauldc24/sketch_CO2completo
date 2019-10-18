@@ -65,6 +65,7 @@ void setup() {
           delay(500);//espera antes de volver a intentarlo 
     }
   Serial.println("SD INICIADA");
+  u8g2.setFont(u8g_font_unifont);
 }
 
 void loop() {

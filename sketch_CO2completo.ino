@@ -1,5 +1,4 @@
 #include <SimpleDHT.h>
-#include <U8g2lib.h>
 #include <U8x8lib.h>
 #include <stdio.h>
 #include <RTClib.h>
@@ -22,15 +21,15 @@ byte screencase = 0;
 RTC_DS1307 rtc;
 SimpleDHT22 dht22(9);
 
-//genera el objeto pantalla u8g2
-U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0);
+//genera el objeto pantalla u8x8
+U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8;
 
 //String para el manejo de las escrituras a archivo, pantalla y serial
 char str[23];
 File file;
 
-byte humidity = 0;
-byte temperature = 0;
+float humidity = 0;
+float temperature = 0;
 
 void setup() {
   //Inicializar los registros de configuración del Timer1
@@ -52,20 +51,17 @@ void setup() {
   Serial.begin(9600);
 
   //inicia la pantalla
-  u8g2.begin();
+  u8x8.begin();
   //intenta iniciar la tarjeta SD
   while (!SD.begin(10)) {//si no se logra inicializar la SD
-          u8g2.firstPage();  
-          do {//imprime en pantalla
-           u8g2.setFont(u8g_font_unifont);
-           u8g2.drawStr( 20, 18, "Inicializando");
-           u8g2.drawStr( 20, 33, "SD");
-          } while( u8g2.nextPage() );
-          Serial.println("No SD");
-          delay(500);//espera antes de volver a intentarlo 
+    u8x8.setFont(u8x8_font_chroma48medium8_r);
+    u8x8.drawString( 20, 18, "Inicializando");
+    u8x8.drawString( 20, 33, "SD");
+    Serial.println("No SD");
+    delay(500);//espera antes de volver a intentarlo 
     }
   Serial.println("SD INICIADA");
-  u8g2.setFont(u8g_font_unifont);
+  u8x8.setFont(u8x8_font_chroma48medium8_r);
 }
 
 void loop() {
@@ -74,38 +70,32 @@ void loop() {
     CO2 = 5000*(PWM_H - 2000)/( PWM_H + PWM_L - 4000);
   }
   if (screencase == 0) {
-      u8g2.firstPage();  
-      sprintf(str, "%i ppm", CO2);
-      do {
-        u8g2.drawStr( 20, 20, "Concentracion");
-        u8g2.drawStr( 20, 35, "de CO2");
-        u8g2.drawStr( 20, 50, str);
-      } while( u8g2.nextPage() );          
+    u8x8.clearDisplay();  
+    sprintf(str, "%i ppm", CO2);
+    u8x8.drawString( 20, 20, "Concentracion");
+    u8x8.drawString( 20, 35, "de CO2");
+    u8x8.drawString( 20, 50, str);
   }
 
   else if (screencase == 1) {
-    u8g2.firstPage();  
-    do {
-      u8g2.drawStr( 20, 20, "Humedad: ");
-      sprintf(str, "%i%c", humidity, '%');
-      u8g2.drawStr( 90, 20, str);
-      sprintf(str, "%i%c", temperature, '°');
-      u8g2.drawStr( 50, 40, str);
-    } while( u8g2.nextPage() );
+    u8x8.clearDisplay();  
+    u8x8.drawString( 20, 20, "Humedad: ");
+    sprintf(str, "%i%c", humidity, '%');
+    u8x8.drawString( 90, 20, str);
+    sprintf(str, "%i%c", temperature, '°');
+    u8x8.drawString( 50, 40, str);
   }
 
   else if (screencase == 2) {
-      DateTime now = rtc.now();
-      u8g2.firstPage();  
-      do {
-        sprintf(str, "%i:%i:%i", now.hour(), now.minute(), now.second());
-        u8g2.drawStr( 20, 20, str);
-      } while( u8g2.nextPage() );
+    u8x8.clearDisplay(); 
+    DateTime now = rtc.now();
+    sprintf(str, "%i:%i:%i", now.hour(), now.minute(), now.second());
+    u8x8.drawString( 20, 20, str);
   }
   
   if (readyToSave)
   {
-    dht22.read(&temperature, &humidity, NULL);
+    dht22.read2(&temperature, &humidity, NULL);
     DateTime now = rtc.now();
     sprintf(str, "%i_%i.txt", now.day(), now.month());
     file = SD.open(str, FILE_WRITE);

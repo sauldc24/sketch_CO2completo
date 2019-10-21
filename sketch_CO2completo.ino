@@ -4,7 +4,7 @@
 #include <RTClib.h>
 #include <SD.h>
 
-//variables para seguimiento del tiempo y cálculo de CO2 (los tiempos se inicializan a 1 para evitar división entre cero)
+//variables para seguimiento del tiempo y cálculo de CO2
 unsigned long int HtoLTime = 0;
 unsigned long int LtoHTime = 0;
 unsigned long int PWM_H = 0;

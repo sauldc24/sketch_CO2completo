@@ -106,10 +106,10 @@ void loop() {
     sprintf(str, "%i\t", CO2);
     Serial.print(str);
     file.print(str);
-    sprintf(str, "%i\t", temperature);
+    sprintf(str, "%f\t", temperature);
     Serial.print(str);
     file.print(str);
-    sprintf(str, "%i", humidity);
+    sprintf(str, "%f", humidity);
     Serial.println(str);
     file.println(str);
     file.close();

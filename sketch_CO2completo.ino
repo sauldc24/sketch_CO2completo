@@ -29,8 +29,8 @@ U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0);
 char str[23];
 File file;
 
-byte humidity = 0;
-byte temperature = 0;
+float humidity = 0;
+float temperature = 0;
 
 void setup() {
   //Inicializar los registros de configuración del Timer1
@@ -51,6 +51,13 @@ void setup() {
   //inicia el puerto serial
   Serial.begin(9600);
 
+//Aquí está la sección de código que permite establecer la hora solo hay que descomentar la línea adentro del if
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+  
   //inicia la pantalla
   u8g2.begin();
   //intenta iniciar la tarjeta SD
@@ -87,9 +94,9 @@ void loop() {
     u8g2.firstPage();  
     do {
       u8g2.drawStr( 20, 20, "Humedad: ");
-      sprintf(str, "%i%c", humidity, '%');
+      dtostrf(humidity, 4, 1, str);
       u8g2.drawStr( 90, 20, str);
-      sprintf(str, "%i%c", temperature, '°');
+      dtostrf(temperature, 4, 1, str);
       u8g2.drawStr( 50, 40, str);
     } while( u8g2.nextPage() );
   }
@@ -105,7 +112,7 @@ void loop() {
   
   if (readyToSave)
   {
-    dht22.read(&temperature, &humidity, NULL);
+    dht22.read2(&temperature, &humidity, NULL);
     DateTime now = rtc.now();
     sprintf(str, "%i_%i.txt", now.day(), now.month());
     file = SD.open(str, FILE_WRITE);
@@ -116,12 +123,14 @@ void loop() {
     sprintf(str, "%i\t", CO2);
     Serial.print(str);
     file.print(str);
-    sprintf(str, "%i\t", temperature);
+    dtostrf(temperature, 4, 1, str);
     Serial.print(str);
+    Serial.print("\t");
     file.print(str);
-    sprintf(str, "%i", humidity);
+    file.print("\t");
+    dtostrf(humidity, 4, 1, str);
     Serial.println(str);
-    file.println(str);
+    file.println(str);    
     file.close();
     }
     else {
